@@ -1,5 +1,5 @@
 {
-  "name": "vsssln-dependencies",
+  "name": "vssln-dependencies",
   "description": "Creates an ordered list of projects from the projects dependency graph inside a Visual Studio Solution (sln) file. Dependencies are resolved using the information created by the 'Project Dependencies' tab in the 'Solution Properties' window in Visual Studio.",
   "version": "0.1.0",
   "homepage": "https://github.com/mhusseini/vssln-dependencies",
