@@ -3,7 +3,7 @@ import {VsSolutionFile} from "../typings/modules/vssln-parser/index";
 import {VsSolutionProject} from "../typings/modules/vssln-parser/index";
 import ReadableStream = NodeJS.ReadableStream;
 var toposort = require('toposort');
-var parse = require("vssln-parser").parse;
+var vsslnparse = require("vssln-parser");
 var fs;
 
 function getOrderedList(solution: VsSolutionFile): VsSolutionProject[] {
@@ -28,7 +28,7 @@ function getOrderedList(solution: VsSolutionFile): VsSolutionProject[] {
 }
 
 export function fromStream(stream: ReadableStream, callback?: (list: VsSolutionProject[]) => void) : void{
-    parse(stream, solution => callback(getOrderedList(solution)));
+    vsslnparse(stream, solution => callback(getOrderedList(solution)));
 }
 
 export function fromFile(fileName: string, callback?: (list: VsSolutionProject[]) => void) : void {
@@ -37,13 +37,13 @@ export function fromFile(fileName: string, callback?: (list: VsSolutionProject[]
     }
 
     const stream = fs.createReadStream(fileName);
-    parse(stream, solution => callback(getOrderedList(solution)));
+    vsslnparse(stream, solution => callback(getOrderedList(solution)));
 }
 
 export function fromString(content: string) :  VsSolutionProject[] {
     let result: VsSolutionProject[];
 
-    parse(content, solution => result = getOrderedList(solution));
+    vsslnparse(content, solution => result = getOrderedList(solution));
 
     return result;
 }
