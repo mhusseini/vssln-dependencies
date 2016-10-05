@@ -3,7 +3,7 @@ import {VsSolutionFile} from "../typings/modules/vssln-parser/index";
 import {VsSolutionProject} from "../typings/modules/vssln-parser/index";
 import ReadableStream = NodeJS.ReadableStream;
 var toposort = require('toposort');
-var parse;
+var parse = require("vssln-parser").parse;
 var fs;
 
 function getOrderedList(solution: VsSolutionFile): VsSolutionProject[] {
@@ -27,42 +27,27 @@ function getOrderedList(solution: VsSolutionFile): VsSolutionProject[] {
     return sortedGuids.map(guid => projectsByGuids[guid]);
 }
 
-function getFromStream(stream: ReadableStream, callback?: (list: VsSolutionProject[]) => void) {
-    if (!parse) {
-        parse = require("vssln-parser").parse;
-    }
-
+export function fromStream(stream: ReadableStream, callback?: (list: VsSolutionProject[]) => void) : void{
     parse(stream, solution => callback(getOrderedList(solution)));
 }
 
-function getFromFile(fileName: string, callback?: (list: VsSolutionProject[]) => void) {
+export function fromFile(fileName: string, callback?: (list: VsSolutionProject[]) => void) : void {
     if (!fs) {
         fs = require("fs");
     }
 
     const stream = fs.createReadStream(fileName);
-    getFromStream(stream, callback);
+    parse(stream, solution => callback(getOrderedList(solution)));
 }
 
-export function sortProjects(input: VsSolutionFile|string|ReadableStream,
-                             callback?: (list: VsSolutionProject[]) => void): VsSolutionProject[] {
-    let result;
+export function fromString(content: string) :  VsSolutionProject[] {
+    let result: VsSolutionProject[];
 
-    if (typeof input === "string") {
-        if (!callback) {
-            throw new Error("sortProjects expects the callback parameter to be non-null when the input parameter is a file name.");
-        }
-        getFromFile(input as string, callback);
-    }
-    else if ((input as ReadableStream).pipe) {
-        if (!callback) {
-            throw new Error("sortProjects expects the callback parameter to be non-null when the input parameter is a stream.");
-        }
-        getFromStream(input as ReadableStream, callback);
-    }
-    else {
-        result = getOrderedList(input as VsSolutionFile);
-    }
+    parse(content, solution => result = getOrderedList(solution));
 
     return result;
+}
+
+export function fromSolution(solution: VsSolutionFile) :  VsSolutionProject[] {
+    return getOrderedList(solution);
 }
